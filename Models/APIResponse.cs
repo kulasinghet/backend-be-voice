@@ -43,6 +43,13 @@
             Data = dataArray;
         }
 
+        public APIResponse(int Code, bool success, string message, List<string> errorMessage)
+        {
+            this.Code = Code;
+            Success = success;
+            Message = message;
+            ErrorMessage = errorMessage;
+        }
 
     }
 }

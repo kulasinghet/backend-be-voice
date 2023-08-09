@@ -13,7 +13,7 @@ namespace Be_My_Voice_Backend.Repository
         {
             _dbContext = dbCotetxt;
         }
-
+        
         public async Task<TranslationModel> createTranslation(TranslationModel translation)
         {
             await _dbContext.translations.AddAsync(translation);

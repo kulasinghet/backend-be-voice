@@ -4,6 +4,7 @@ using Be_My_Voice_Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Be_My_Voice_Backend.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20230809181628_addStatusToTheSessionTable")]
+    partial class addStatusToTheSessionTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,36 +55,6 @@ namespace Be_My_Voice_Backend.Migrations
                     b.HasKey("chatID");
 
                     b.ToTable("chats");
-                });
-
-            modelBuilder.Entity("Be_My_Voice_Backend.Models.NormalUserTranslationModel", b =>
-                {
-                    b.Property<Guid>("NormalUserTranslationID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("NormalUserTranslatedText")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("SessionID")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("VideoUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("NormalUserTranslationID");
-
-                    b.HasIndex("SessionID");
-
-                    b.ToTable("NormalUsertranslations");
                 });
 
             modelBuilder.Entity("Be_My_Voice_Backend.Models.SessionModel", b =>
@@ -180,17 +153,6 @@ namespace Be_My_Voice_Backend.Migrations
                     b.HasKey("UserID");
 
                     b.ToTable("users");
-                });
-
-            modelBuilder.Entity("Be_My_Voice_Backend.Models.NormalUserTranslationModel", b =>
-                {
-                    b.HasOne("Be_My_Voice_Backend.Models.SessionModel", "Session")
-                        .WithMany()
-                        .HasForeignKey("SessionID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Session");
                 });
 
             modelBuilder.Entity("Be_My_Voice_Backend.Models.SessionModel", b =>

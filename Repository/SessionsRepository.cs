@@ -1,7 +1,9 @@
 ﻿using Be_My_Voice_Backend.Data;
 using Be_My_Voice_Backend.Models;
+using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Be_My_Voice_Backend.Repository
 {
@@ -58,7 +60,29 @@ namespace Be_My_Voice_Backend.Repository
             return session;
         }
 
+        public async Task<SessionModel> updateSessionStatus(UpdateSessionStatusDTO sessionStatus)
+        {
+            SessionModel session = await _dbContext.sessions.FirstOrDefaultAsync(s => s.sessionID  == sessionStatus.sessionID);
+            UserModel userModel = await _dbContext.users.FirstOrDefaultAsync(u => u.UserID == session.userID);
+
+            var tempSession = new SessionModel()
+            {
+                sessionID = session.sessionID,
+                userID = session.userID,
+                user = userModel,
+                startDate = session.startDate,
+                endDate = session.endDate,
+                status = sessionStatus.status
+            };
 
 
+            _dbContext.sessions.Remove(session);
+            await _dbContext.SaveChangesAsync();
+
+            _dbContext.sessions.AddAsync(tempSession);
+            await _dbContext.SaveChangesAsync();
+
+            return tempSession;
+        }
     }
 }

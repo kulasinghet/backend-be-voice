@@ -24,7 +24,8 @@ namespace Be_My_Voice_Backend.Controllers
             {
                 SessionModel[] sessions = await _sessionsRepository.getAllSessions();
                 return (new APIResponse(200, true, "All sessions in the DB", sessions));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
             }
@@ -37,7 +38,8 @@ namespace Be_My_Voice_Backend.Controllers
             {
                 SessionModel session = await _sessionsRepository.getSessionById(id);
                 return (new APIResponse(200, true, "Session found", session));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
             }
@@ -50,36 +52,38 @@ namespace Be_My_Voice_Backend.Controllers
             {
                 SessionModel[] sessions = await _sessionsRepository.getSessionsByUserId(id);
                 return (new APIResponse(200, true, "Sessions found", sessions));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
             }
         }
 
         [HttpPost("create-session")]
-        public async Task<ActionResult<APIResponse>> createSession([FromBody] CreateSessionDTO createSessionDTO) 
+        public async Task<ActionResult<APIResponse>> createSession([FromBody] CreateSessionDTO createSessionDTO)
         {
             try
             {
                 SessionModel session = new SessionModel();
                 session.userID = createSessionDTO.userID;
                 session.sessionID = Guid.NewGuid();
-                session.startDtae = DateTime.Now;
+                session.startDate = DateTime.Now;
                 session.endDate = DateTime.Now.AddMinutes(5);
 
                 Guid userID = Guid.Parse(createSessionDTO.userID.ToString());
-                // TODO: implement check if user exists
-                //UserModel user = await _userRepository.getUserById(userID);
 
-                //if (user == null)
-                //{
-                //    return (new APIResponse(404, false, "User not found"));
-                //}
+                UserModel user = await _userRepository.getUserById(userID);
+
+                if (user == null)
+                {
+                    return (new APIResponse(404, false, "User not found", "User not found"));
+                }
 
 
                 SessionModel newSession = await _sessionsRepository.createSession(session);
                 return (new APIResponse(201, true, "Session created", newSession));
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
             }
@@ -105,12 +109,58 @@ namespace Be_My_Voice_Backend.Controllers
                 if (updateSession != null)
                 {
                     return (new APIResponse(200, true, "Session updated", updatedSession));
-                } else
+                }
+                else
                 {
                     return (new APIResponse(406, false, "Something went wrong while updating"));
                 }
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
+            {
+                return (new APIResponse(500, false, ex.Message));
+            }
+        }
+
+        [HttpPatch("update-session-status")]
+        public async Task<ActionResult<APIResponse>> updateSessionStatus([FromBody] UpdateSessionStatusDTO sessionStatus)
+        {
+            try
+            {
+                if (sessionStatus.sessionID == Guid.Empty)
+                {
+                    return (new APIResponse(406, false, "Please provide a valid session ID"));
+                }
+
+                if (await _sessionsRepository.getSessionById(sessionStatus.sessionID) == null)
+                {
+                    return (new APIResponse(204, false, "Session is not found"));
+                }
+
+                SessionModel session = await _sessionsRepository.getSessionById(sessionStatus.sessionID);
+
+                if (sessionStatus.status == "started" && session.endDate < DateTime.Now)
+                {
+                    return (new APIResponse(406, false, "Session cannot be started because it has expired"));
+                }
+
+                if (session.status == "ended")
+                {
+                    return (new APIResponse(406, false, "Session cannot update, as it is already ended"));
+                }
+
+                SessionModel updatedSession = await _sessionsRepository.updateSessionStatus(sessionStatus);
+
+                if (updateSession != null)
+                {
+                    return (new APIResponse(200, true, "Session updated", updatedSession));
+                }
+                else
+                {
+                    return (new APIResponse(406, false, "Something went wrong while updating"));
+                }
+            }
+            catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
             }

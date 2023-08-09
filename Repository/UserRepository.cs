@@ -4,6 +4,10 @@ using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace Be_My_Voice_Backend.Repository
 {
@@ -25,12 +29,12 @@ namespace Be_My_Voice_Backend.Repository
             return await _dbContext.users.ToArrayAsync();
         }
 
-        public UserModel getUser(Guid userId)
+        public async Task<UserModel> getUserById(Guid userId)
         {
             UserModel user = null;
             try
             {
-                user = _dbContext.users.FirstOrDefault(u => u.UserID == userId);
+                user = await _dbContext.users.FirstOrDefaultAsync(u => u.UserID == userId);
             }
             catch (Exception)
             {
@@ -75,9 +79,9 @@ namespace Be_My_Voice_Backend.Repository
             }
         }
 
-        public Task<UserModel> isUserAuthenticated(string email, string password)
+        public async Task<UserModel> isUserAuthenticated(string email, string password)
         {
-            throw new NotImplementedException();
+            return await _dbContext.users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<UserModel> registerUser(RegisterRequestDTO registerRequestDTO)
@@ -94,7 +98,7 @@ namespace Be_My_Voice_Backend.Repository
                     Status = registerRequestDTO.Status,
                     ProfilePictureUrl = registerRequestDTO.ProfilePictureUrl,
                     PhoneNumber = registerRequestDTO.PhoneNumber,
-                    DateOfBirth = registerRequestDTO.DateOfBirth    
+                    DateOfBirth = registerRequestDTO.DateOfBirth
                 };
 
                 await _dbContext.AddAsync(user);
@@ -108,5 +112,45 @@ namespace Be_My_Voice_Backend.Repository
             }
         }
 
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
+        {
+            var user = await _dbContext.users.FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email);
+
+            var isPasswordMatch = BCrypt.Net.BCrypt.Verify(loginRequestDTO.Password, user.PasswordHash, true);
+
+            if (isPasswordMatch)
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(secretKey);
+
+                var tokenDescriptor = new SecurityTokenDescriptor()
+                {
+                    Subject = new ClaimsIdentity(
+                            new Claim[]
+                            {
+                                new Claim(ClaimTypes.Name, user.UserID.ToString()),
+                                new Claim(ClaimTypes.Role, user.Role)
+                            }
+                        ),
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    SigningCredentials = new(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+                };
+
+                var token = tokenHandler.CreateToken(tokenDescriptor);
+
+                LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+                {
+                    Token = tokenHandler.WriteToken(token),
+                    User = user
+                };
+
+                return loginResponseDTO;
+
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

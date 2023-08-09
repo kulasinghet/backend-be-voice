@@ -13,8 +13,9 @@ namespace Be_My_Voice_Backend.Models
         [ForeignKey("userID")]
         public UserModel user { get; set; }
         
-        public DateTime startDtae { get; set; }
+        public DateTime startDate { get; set; }
         
         public DateTime endDate { get; set; }
+        public string status { get; set; } = "waiting";
     }
 }

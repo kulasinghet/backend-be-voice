@@ -5,27 +5,27 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Be_My_Voice_Backend.Controllers
 {
-    [Route("api/translation")]
-    public class TranslationController : Controller
+    [Route("api/normal-user-translations")]
+    public class NormalUserTranslationController : Controller
     {
-        private readonly ITranslationsRepository _translationRepository;
+        private readonly INormalUserTranslationsRepository _normalUserTranslationsRepository;
         private readonly IUserRepository _userRepository;
         private readonly ISessionsRepository _sessionsRepository;
 
-        public TranslationController(ITranslationsRepository translationRepository, IUserRepository userRepository, ISessionsRepository sessionsRepository)
+        public NormalUserTranslationController(INormalUserTranslationsRepository normalUserTranslationsRepository, IUserRepository userRepository, ISessionsRepository sessionsRepository)
         {
-            this._translationRepository = translationRepository;
+            this._normalUserTranslationsRepository = normalUserTranslationsRepository;
             this._userRepository = userRepository;
             this._sessionsRepository = sessionsRepository;
         }
 
-        [HttpGet("get-all-translations")]
+        [HttpGet("get-all-normal-user-translations")]
         public async Task<ActionResult<APIResponse>> getAllTranslations()
         {
             try
             {
-                TranslationModel[] translations = await _translationRepository.getAllTranslations();
-                return (new APIResponse(200, true, "All translations in the DB", translations));
+                NormalUserTranslationModel[] translations = await _normalUserTranslationsRepository.NormalUserTranslationModel();
+                return (new APIResponse(200, true, "All normal user translations in the DB", translations));
             }
             catch (Exception ex)
             {
@@ -33,13 +33,13 @@ namespace Be_My_Voice_Backend.Controllers
             }
         }
 
-        [HttpGet("get-translation-by-id/{id}")]
+        [HttpGet("get-normal-user-translation-by-id/{id}")]
         public async Task<ActionResult<APIResponse>> getTranlationById(Guid id)
         {
             try
             {
-                TranslationModel translation = await _translationRepository.getTranslationById(id);
-                return (new APIResponse(200, true, "Translation Found", translation));
+                NormalUserTranslationModel translation = await _normalUserTranslationsRepository.getNormalUserTranslationById(id);
+                return (new APIResponse(200, true, "Normal user translation Found", translation));
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace Be_My_Voice_Backend.Controllers
             }
         }
 
-        [HttpGet("get-translation-by-session/{id}")]
+        [HttpGet("get-normal-user-translation-by-session/{id}")]
         public async Task<ActionResult<APIResponse>> getTranlationBySessionId(Guid id)
         {
             try
@@ -58,7 +58,7 @@ namespace Be_My_Voice_Backend.Controllers
                 }
 
 
-                TranslationModel[] translations = await _translationRepository.getlTranslationBySessionID(id);
+                NormalUserTranslationModel[] translations = await _normalUserTranslationsRepository.getNormalUserTranslationBySessionID(id);
 
                 if (translations.Count() == 0)
                 {
@@ -73,9 +73,10 @@ namespace Be_My_Voice_Backend.Controllers
             }
         }
 
-        [HttpPost("create-translation")]
-        public async Task<ActionResult<APIResponse>> createTranslation([FromBody] CreateTranslationDTO createTranslationDTO)
+        [HttpPost("create-normal-user-translation")]
+        public async Task<ActionResult<APIResponse>> createTranslation([FromBody] CreateTranslationDTO createTranslationDTO, IFormFile voiceRecord)
         {
+
             try
             {
 
@@ -98,8 +99,15 @@ namespace Be_My_Voice_Backend.Controllers
                 //    return new APIResponse(406, false, "Invalid user id");
                 //}
 
-                Console.Out.WriteLine(session.endDate.ToString());
-                Console.Out.WriteLine(DateTime.Now.ToString());
+                if (session.startDate.CompareTo(DateTime.Now) > 0)
+                {
+                    return new APIResponse(406, false, "Session hasn't started yet");
+                }
+
+                if (session.status != "ongoing")
+                {
+                    return new APIResponse(406, false, "Session is not ongoing");
+                }
 
                 if (session.endDate.CompareTo(DateTime.Now) < 0)
                 {
@@ -114,23 +122,10 @@ namespace Be_My_Voice_Backend.Controllers
                     return new APIResponse(406, false, "Session has expired");
                 }
 
-                TranslationModel translation = new TranslationModel();
-                translation.sessionID = session.sessionID;
-                translation.translatedText = predictedText;
 
-                //if (translation.translatedText != null)
-                //{
-                //    return new APIResponse(500, false, "Couldn't predict the video");
-                //}
 
-                TranslationModel result = await _translationRepository.createTranslation(translation);
 
-                if (result == null)
-                {
-                    return new APIResponse(500, false, "Couldn't create the translation");
-                }
-
-                return new APIResponse(201, true, "Translation created successfully", result);
+                return new APIResponse(201, true, "Translation created successfully");
 
             } catch (Exception ex)
             {
@@ -139,7 +134,7 @@ namespace Be_My_Voice_Backend.Controllers
 
         }
 
-        [HttpDelete("delete-transaction-by-id/{id}")]
+        [HttpDelete("delete-normal-user-transaction-by-id/{id}")]
         public async Task<ActionResult<APIResponse>> deleteTransaction(Guid id)
         {
             if (id == null)
@@ -147,7 +142,7 @@ namespace Be_My_Voice_Backend.Controllers
                 return new APIResponse(404, false, "Please provide a valid transaction ID");
             }
 
-            TranslationModel translationModel = await _translationRepository.deleteTranslationById(id);
+            NormalUserTranslationModel translationModel = await _normalUserTranslationsRepository.deleteNormalUserTranslationById(id);
 
             if (translationModel == null)
             {
@@ -157,22 +152,22 @@ namespace Be_My_Voice_Backend.Controllers
             return new APIResponse(201, true, "Successfully deleted", translationModel);
         }
 
-        [HttpPatch("update-translation")]
-        public async Task<ActionResult<APIResponse>> updateSession([FromBody] TranslationModel translation)
+        [HttpPatch("update-normal-user-translation")]
+        public async Task<ActionResult<APIResponse>> updateSession([FromBody] NormalUserTranslationModel translation)
         {
             try
             {
-                if (translation.translationID == Guid.Empty)
+                if (translation.NormalUserTranslationID == Guid.Empty)
                 { 
                     return (new APIResponse(406, false, "Please provide a valid translation ID"));
                 }
 
-                if (await _sessionsRepository.getSessionById(translation.sessionID) == null)
+                if (await _sessionsRepository.getSessionById(translation.SessionID) == null)
                 {
                     return (new APIResponse(204, false, "Session is not found"));
                 }
 
-                TranslationModel updatedTranslation = await _translationRepository.updateTranslation(translation);
+                NormalUserTranslationModel updatedTranslation = await _normalUserTranslationsRepository.updateNormalUserTranslation(translation);
 
                 if (updatedTranslation != null)
                 {

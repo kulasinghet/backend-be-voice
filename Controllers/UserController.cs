@@ -18,7 +18,7 @@ namespace Be_My_Voice_Backend.Controllers
 
 
         [HttpGet("get-all-users")]
-        public async Task<ActionResult<APIResponse>> getAllUsers()
+        public async Task<ActionResult<APIResponse>> GetAllUsers()
         {
 
             try
@@ -33,22 +33,22 @@ namespace Be_My_Voice_Backend.Controllers
 
         }
 
-        //[HttpGet("get-user-by-id/{id}")]
-        //public async Task<ActionResult<APIResponse>> getUserById(Guid id)
-        //{
-        //    try
-        //    {
-        //        UserModel user = await _userRepository.getUserById(id);
-        //        return (new APIResponse(200, true, "User found", user));
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return (new APIResponse(500, false, ex.Message));
-        //    }
-        //}
+        [HttpGet("get-user-by-id/{id}")]
+        public async Task<ActionResult<APIResponse>> GetUserById(Guid id)
+        {
+            try
+            {
+                UserModel user = await _userRepository.getUserById(id);
+                return (new APIResponse(200, true, "User found", user));
+            }
+            catch (Exception ex)
+            {
+                return (new APIResponse(500, false, ex.Message));
+            }
+        }
 
         [HttpPost("register")]
-        public async Task<ActionResult<APIResponse>> registerUser(RegisterRequestDTO registerRequestDTO)
+        public async Task<ActionResult<APIResponse>> RegisterUser(RegisterRequestDTO registerRequestDTO)
         {
             try
             {
@@ -67,6 +67,29 @@ namespace Be_My_Voice_Backend.Controllers
             {
                 return (new APIResponse(500, false, ex.Message));
             }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult<APIResponse>> Login(LoginRequestDTO loginRequest)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return (new APIResponse(400, false, "Invalid Model State", ModelState));
+                }
+                LoginResponseDTO loginResponse = await _userRepository.Login(loginRequest);
+                if (loginResponse.Token == null)
+                {
+                    return (new APIResponse(400, false, "Invalid Credentials"));
+                }
+                return (new APIResponse(200, true, "User logged in", loginResponse));
+            }
+            catch (Exception ex)
+            {
+                return (new APIResponse(500, false, ex.Message));
+            }   
+
         }
     }
 }

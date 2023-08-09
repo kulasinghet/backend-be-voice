@@ -7,8 +7,9 @@ namespace Be_My_Voice_Backend.Repository.IRepository
     {
         Task<UserModel[]> getAllUsers();
         bool isUniqueUser(string email);
-        UserModel getUser(Guid userId);
+        Task<UserModel> getUserById(Guid userId);
         Task<UserModel> isUserAuthenticated(string email, string password);
         Task<UserModel> registerUser(RegisterRequestDTO registerRequestDTO);
+        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
     }
 }

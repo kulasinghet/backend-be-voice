@@ -14,6 +14,7 @@ namespace Be_My_Voice_Backend.Data
         public DbSet<ChatModel> chats { get; set; }
         public DbSet<SessionModel> sessions { get; set; }
         public DbSet<TranslationModel> translations { get; set; }
+        public DbSet<NormalUserTranslationModel> NormalUsertranslations { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
