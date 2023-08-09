@@ -16,17 +16,17 @@ namespace Be_My_Voice_Backend.Repository
 
         public async Task<SessionModel[]> getAllSessions()
         {
-            return await _dbContext.sessions.Include(u => u.userID).ToArrayAsync();
+            return await _dbContext.sessions.Include(u => u.user).ToArrayAsync();
         }
 
         public async Task<SessionModel> getSessionById(Guid id)
         {
-            return await _dbContext.sessions.Include(u => u.userID).FirstOrDefaultAsync(s => s.sessionID == id);
+            return await _dbContext.sessions.Include(u => u.user).FirstOrDefaultAsync(s => s.sessionID == id);
         }
 
         public Task<SessionModel[]> getSessionsByUserId(Guid id)
         {
-            return _dbContext.sessions.Where(s => s.userID == id).Include(u => u.userID).ToArrayAsync();
+            return _dbContext.sessions.Where(s => s.userID == id).Include(u => u.user).ToArrayAsync();
         }
 
         public async Task<SessionModel> createSession(SessionModel session)

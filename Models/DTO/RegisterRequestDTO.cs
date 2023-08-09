@@ -1,29 +1,14 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Be_My_Voice_Backend.Models
+﻿namespace Be_My_Voice_Backend.Models.DTO
 {
-    public class UserModel
+    public class RegisterRequestDTO
     {
-        [Key]
-        public Guid UserID { get; set; }
-
-        [Required]
         public string Name { get; set; }
-
-        [Required]
         public string Email { get; set; }
-
-        [Required]
-        public string PasswordHash { get; set; }
-
         public string Role { get; set; }
-
         public string Status { get; set; }
-
+        public string Password { get; set; }
         public string ProfilePictureUrl { get; set; }
-
         public string PhoneNumber { get; set; }
-
         public DateTime DateOfBirth { get; set; }
     }
 }

@@ -6,6 +6,7 @@
         public bool Success { get; set; }
         public string Message { get; set; }
         public object[] Data { get; set; } = null;
+        public List<string> ErrorMessage { get; set; } = null;
 
         public APIResponse(int Code, bool success, string message, object[] data)
         {

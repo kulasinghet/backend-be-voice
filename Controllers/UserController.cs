@@ -1,4 +1,5 @@
 ﻿using Be_My_Voice_Backend.Models;
+using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
 
@@ -45,5 +46,27 @@ namespace Be_My_Voice_Backend.Controllers
         //        return (new APIResponse(500, false, ex.Message));
         //    }
         //}
+
+        [HttpPost("register")]
+        public async Task<ActionResult<APIResponse>> registerUser(RegisterRequestDTO registerRequestDTO)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return (new APIResponse(400, false, "Invalid Model State", ModelState));
+                }
+                if (!_userRepository.isUniqueUser(registerRequestDTO.Email))
+                {
+                    return (new APIResponse(400, false, "User already exists"));
+                }
+                UserModel user = await _userRepository.registerUser(registerRequestDTO);
+                return (new APIResponse(201, true, "User created", user));
+            }
+            catch (Exception ex)
+            {
+                return (new APIResponse(500, false, ex.Message));
+            }
+        }
     }
 }

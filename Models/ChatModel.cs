@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Be_My_Voice_Backend.Models
@@ -13,9 +15,5 @@ namespace Be_My_Voice_Backend.Models
         public string status { get; set; }
         public Guid sentUserID { get; set; }
         public Guid receivedUserID { get; set; }
-        [ForeignKey("sentUserID")]
-        public UserModel sentUser { get; set; }
-        [ForeignKey("receivedUserID")]
-        public UserModel receivedUser { get; set; }
     }
 }

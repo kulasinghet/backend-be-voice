@@ -22,7 +22,7 @@ Log.Logger = new LoggerConfiguration()
 // Add DbContext
 builder.Services.AddDbContext<ApplicationDBContext>(options =>
 {
-    options.UseInMemoryDatabase(databaseName: "db");
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
 // Dependency Injection
