@@ -2,6 +2,11 @@
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
+using Newtonsoft.Json;
+using System.Text;
+using Newtonsoft.Json.Linq;
+using NAudio.Wave;
 
 namespace Be_My_Voice_Backend.Controllers
 {
@@ -132,7 +137,8 @@ namespace Be_My_Voice_Backend.Controllers
 
                 return new APIResponse(201, true, "Translation created successfully", result);
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new APIResponse(500, false, ex.Message);
             }
@@ -163,7 +169,7 @@ namespace Be_My_Voice_Backend.Controllers
             try
             {
                 if (translation.translationID == Guid.Empty)
-                { 
+                {
                     return (new APIResponse(406, false, "Please provide a valid translation ID"));
                 }
 
@@ -187,6 +193,119 @@ namespace Be_My_Voice_Backend.Controllers
             catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
+            }
+        }
+
+        [HttpPost("translate-audio-to-text")]
+        // get a file from the request body
+        public async Task<ActionResult<APIResponse>> TranslateAudioToText(IFormFile audioFile)
+        {
+            try
+            {
+                if (audioFile == null)
+                {
+                    return new APIResponse(406, false, "Please provide a valid audio file");
+                }
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    await audioFile.CopyToAsync(memoryStream);
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    // Convert memoryStream to base64 encoded string
+                    string base64Audio = Convert.ToBase64String(memoryStream.ToArray());
+
+                    int calculatedSampleRate = GetSampleRateFromMemoryStream(memoryStream);
+
+                    var requestBody = new
+                    {
+                        config = new
+                        {
+                            enableAutomaticPunctuation = true,
+                            encoding = "MP3",
+                            languageCode = "si-LK",
+                            model = "default",
+                            sampleRateHertz = calculatedSampleRate
+                        },
+                        audio = new
+                        {
+                            content = base64Audio
+                        }
+                    };
+
+                    var requestJson = JsonConvert.SerializeObject(requestBody);
+
+                    using (var client = new HttpClient())
+                    {
+                        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+
+                        var response = await client.PostAsync(
+                            "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=AIzaSyAc8sXVyk520hND8a0mEDy_l149FkDTB5A",
+                            content);
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseContent = await response.Content.ReadAsStringAsync();
+                            // Parse the JSON response to extract the translated text
+                            // Assuming you have a method to parse JSON and get the translated text
+                            string translatedText = ParseResponseAndGetTranslatedText(responseContent);
+
+                            return new APIResponse(200, true, "Successfully translated", translatedText);
+                        }
+                        else
+                        {
+                            return new APIResponse(500, false, "Error translating audio");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return new APIResponse(500, false, ex.Message);
+            }
+        }
+
+        [HttpPost("translate-text-to-sinhala")]
+        public async Task<ActionResult<APIResponse>> TranslateTextToAudio(string text)
+        {
+
+        }
+
+
+        private string ParseResponseAndGetTranslatedText(string responseContent)
+        {
+            try
+            {
+                JObject jsonResponse = JObject.Parse(responseContent);
+
+                // The structure of the response might vary, but typically you can find the transcript here
+                var transcripts = jsonResponse["results"]?.SelectTokens("..transcript").Select(t => (string)t).ToList();
+
+                if (transcripts != null && transcripts.Count > 0)
+                {
+                    return string.Join(" ", transcripts);
+                }
+                else
+                {
+                    return "No translated text available.";
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any parsing errors gracefully
+                return $"Error parsing response: {ex.Message}";
+            }
+
+
+        }
+
+        private int GetSampleRateFromMemoryStream(MemoryStream memoryStream)
+        {
+            memoryStream.Seek(0, SeekOrigin.Begin);
+
+            using (var audioFile = new Mp3FileReader(memoryStream))
+            {
+                return audioFile.WaveFormat.SampleRate;
             }
         }
     }
