@@ -7,6 +7,8 @@ using Newtonsoft.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
 using NAudio.Wave;
+using static System.Net.WebRequestMethods;
+using System.Net.Http;
 
 namespace Be_My_Voice_Backend.Controllers
 {
@@ -16,12 +18,14 @@ namespace Be_My_Voice_Backend.Controllers
         private readonly ITranslationsRepository _translationRepository;
         private readonly IUserRepository _userRepository;
         private readonly ISessionsRepository _sessionsRepository;
+        private readonly HttpClient _httpClient;
 
         public TranslationController(ITranslationsRepository translationRepository, IUserRepository userRepository, ISessionsRepository sessionsRepository)
         {
             this._translationRepository = translationRepository;
             this._userRepository = userRepository;
             this._sessionsRepository = sessionsRepository;
+            this._httpClient = new HttpClient();
         }
 
         [HttpGet("get-all-translations")]
@@ -268,7 +272,34 @@ namespace Be_My_Voice_Backend.Controllers
         [HttpPost("translate-text-to-sinhala")]
         public async Task<ActionResult<APIResponse>> TranslateTextToAudio(string text)
         {
+            try
+            {
+                if (text == null)
+                {
+                    return new APIResponse(406, false, "Please provide a valid text");
+                }
 
+                string requestURLToSubasa = "https://marytts.subasa.lk/process?INPUT_TYPE=TEXT&AUDIO=WAVE_FILE&OUTPUT_TYPE=AUDIO&LOCALE=si&INPUT_TEXT=" + "\"" + text + "\"";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(requestURLToSubasa);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    byte[] audioBytes = await response.Content.ReadAsByteArrayAsync();
+                    string base64Audio = Convert.ToBase64String(audioBytes);
+
+                    return new APIResponse(200, true, "Audio generated successfully", base64Audio);
+                }
+                else
+                {
+                    return new APIResponse(500, false, "Error generating audio");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return new APIResponse(500, false, ex.Message);
+            }   
         }
 
 
