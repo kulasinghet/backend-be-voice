@@ -14,5 +14,6 @@ namespace Be_My_Voice_Backend.Models
         public string videoUrl { get; set; } = "";
         public DateTime createdTime { get; set; } = DateTime.Now;
         public int status { get; set; } = 0;
+        public string userType { get; set; } = "";
     }
 }
