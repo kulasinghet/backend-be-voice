@@ -127,7 +127,7 @@ namespace Be_My_Voice_Backend.Controllers
                 if (createTranslationDTO.userType == "mute")
                 {
                     translation.userType = "mute";
-                    translation.translatedText = createTranslationDTO.resultObjectFromSkeleton;
+                    translation.translatedText = createTranslationDTO.resultObjectFromSkeleton.ToString();
 
                     // TODO: API call to infer ML model
 
