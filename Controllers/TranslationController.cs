@@ -2,16 +2,10 @@
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using Newtonsoft.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using NAudio.Wave;
-using static System.Net.WebRequestMethods;
-using System.Net.Http;
-using Microsoft.SqlServer.Server;
 
-using NAudio;
 
 namespace Be_My_Voice_Backend.Controllers
 {
@@ -214,17 +208,14 @@ namespace Be_My_Voice_Backend.Controllers
                     return new APIResponse(406, false, "Please provide a valid audio file in base64 format", base64Audio);
                 }
 
-                int calculatedSampleRate = GetSampleRateFromMemoryStream(base64Audio);
-
                 var requestBody = new
                 {
                     config = new
                     {
                         enableAutomaticPunctuation = true,
-                        encoding = "MP3",
+                        encoding = "WEBM_OPUS",
                         languageCode = "si-LK",
-                        model = "default",
-                        sampleRateHertz = calculatedSampleRate
+                        model = "default"
                     },
                     audio = new
                     {
@@ -297,57 +288,6 @@ namespace Be_My_Voice_Backend.Controllers
             }
         }
 
-        [HttpPost("webm-to-mp3")]
-        public async Task<ActionResult<APIResponse>> TranslateWebMtoMp3([FromBody] string base64Webm)
-        {
-            try
-            {
-                // Convert base64 string to byte array
-                byte[] webmBytes = Convert.FromBase64String(base64Webm);
-
-                // Create a temporary file path for the input WebM file
-                string webmFilePath = Path.GetTempFileName() + ".webm";
-
-                // Write the base64 data to the temporary file
-                await System.IO.File.WriteAllBytesAsync(webmFilePath, webmBytes);
-
-                // Create a temporary file path for the output MP3 file
-                string mp3FilePath = Path.GetTempFileName() + ".mp3";
-
-                // Convert the WebM to MP3
-                var converter = new FFMpegConverter();
-                converter.ConvertMedia(webmFilePath, mp3FilePath, Format.mp3);
-
-                // Delete the temporary WebM file
-                System.IO.File.Delete(webmFilePath);
-
-                // Read the MP3 file as byte array
-                byte[] mp3Bytes = await System.IO.File.ReadAllBytesAsync(mp3FilePath);
-
-                // Delete the temporary MP3 file
-                System.IO.File.Delete(mp3FilePath);
-
-                // Convert the MP3 byte array to base64 string
-                string base64Mp3 = Convert.ToBase64String(mp3Bytes);
-
-                Object[] objects = { base64Mp3 };
-
-                return new APIResponse
-                {
-                    Code = 200,
-                    Success = true,
-                    Message = "MP3 Base64",
-                    Data = objects
-                }; // You'll need to define the APIResponse class
-
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new APIResponse { Message = ex.Message });
-            }
-
-        }
-
         private string ParseResponseAndGetTranslatedText(string responseContent)
         {
             try
@@ -375,25 +315,5 @@ namespace Be_My_Voice_Backend.Controllers
 
         }
 
-        private int GetSampleRateFromMemoryStream(string base64Audio)
-        {
-            try
-            {
-                byte[] audioBytes = Convert.FromBase64String(base64Audio);
-
-                using (MemoryStream memoryStream = new MemoryStream(audioBytes))
-                using (var audioFile = new Mp3FileReader(memoryStream))
-                {
-                    return audioFile.WaveFormat.SampleRate;
-                }
-            }
-            catch (Exception ex)
-            {
-                // Handle any exceptions here
-                // For example, if the base64 input is not a valid audio file
-                Console.WriteLine($"Error while getting sample rate: {ex.Message}");
-                return -1; // Indicate an error condition
-            }
-        }
     }
 }
