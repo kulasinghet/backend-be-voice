@@ -85,7 +85,7 @@ namespace Be_My_Voice_Backend.Controllers
             try
             {
 
-                String resultObjectToRunOnAIModel = createTranslationDTO.resultObjectFromSkeleton;
+                //String resultObjectToRunOnAIModel = createTranslationDTO.resultObjectFromSkeleton;
 
                 // TODO: Run inference on the resultObject
 
