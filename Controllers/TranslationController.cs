@@ -202,66 +202,61 @@ namespace Be_My_Voice_Backend.Controllers
 
         [HttpPost("translate-audio-to-text")]
         // get a file from the request body
-        public async Task<ActionResult<APIResponse>> TranslateAudioToText(IFormFile audioFile)
+        public async Task<ActionResult<APIResponse>> TranslateAudioToText([FromBody] string base64Audio)
         {
             try
             {
-                if (audioFile == null)
+                if (base64Audio == null)
                 {
-                    return new APIResponse(406, false, "Please provide a valid audio file");
+                    return new APIResponse(406, false, "Please provide a valid audio file in base64 format", base64Audio);
                 }
 
-                using (var memoryStream = new MemoryStream())
+
+
+
+                int calculatedSampleRate = GetSampleRateFromMemoryStream(base64Audio);
+
+                var requestBody = new
                 {
-                    await audioFile.CopyToAsync(memoryStream);
-                    memoryStream.Seek(0, SeekOrigin.Begin);
-
-                    // Convert memoryStream to base64 encoded string
-                    string base64Audio = Convert.ToBase64String(memoryStream.ToArray());
-
-                    int calculatedSampleRate = GetSampleRateFromMemoryStream(memoryStream);
-
-                    var requestBody = new
+                    config = new
                     {
-                        config = new
-                        {
-                            enableAutomaticPunctuation = true,
-                            encoding = "MP3",
-                            languageCode = "si-LK",
-                            model = "default",
-                            sampleRateHertz = calculatedSampleRate
-                        },
-                        audio = new
-                        {
-                            content = base64Audio
-                        }
-                    };
-
-                    var requestJson = JsonConvert.SerializeObject(requestBody);
-
-                    using (var client = new HttpClient())
+                        enableAutomaticPunctuation = true,
+                        encoding = "MP3",
+                        languageCode = "si-LK",
+                        model = "default",
+                        sampleRateHertz = calculatedSampleRate
+                    },
+                    audio = new
                     {
-                        var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
+                        content = base64Audio
+                    }
+                };
 
-                        var response = await client.PostAsync(
-                            "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=AIzaSyAc8sXVyk520hND8a0mEDy_l149FkDTB5A",
-                            content);
+                var requestJson = JsonConvert.SerializeObject(requestBody);
 
-                        if (response.IsSuccessStatusCode)
-                        {
-                            var responseContent = await response.Content.ReadAsStringAsync();
-                            // Parse the JSON response to extract the translated text
-                            // Assuming you have a method to parse JSON and get the translated text
-                            string translatedText = ParseResponseAndGetTranslatedText(responseContent);
+                using (var client = new HttpClient())
+                {
+                    var content = new StringContent(requestJson, Encoding.UTF8, "application/json");
 
-                            return new APIResponse(200, true, "Successfully translated", translatedText);
-                        }
-                        else
-                        {
-                            return new APIResponse(500, false, "Error translating audio");
-                        }
+                    var response = await client.PostAsync(
+                        "https://speech.googleapis.com/v1p1beta1/speech:recognize?key=AIzaSyAc8sXVyk520hND8a0mEDy_l149FkDTB5A",
+                        content);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var responseContent = await response.Content.ReadAsStringAsync();
+                        // Parse the JSON response to extract the translated text
+                        // Assuming you have a method to parse JSON and get the translated text
+                        string translatedText = ParseResponseAndGetTranslatedText(responseContent);
+
+                        return new APIResponse(200, true, "Successfully translated", translatedText);
+                    }
+                    else
+                    {
+                        return new APIResponse(500, false, "Error translating audio");
                     }
                 }
+
             }
             catch (Exception ex)
             {
@@ -299,7 +294,7 @@ namespace Be_My_Voice_Backend.Controllers
             catch (Exception ex)
             {
                 return new APIResponse(500, false, ex.Message);
-            }   
+            }
         }
 
 
@@ -330,13 +325,24 @@ namespace Be_My_Voice_Backend.Controllers
 
         }
 
-        private int GetSampleRateFromMemoryStream(MemoryStream memoryStream)
+        private int GetSampleRateFromMemoryStream(string base64Audio)
         {
-            memoryStream.Seek(0, SeekOrigin.Begin);
-
-            using (var audioFile = new Mp3FileReader(memoryStream))
+            try
             {
-                return audioFile.WaveFormat.SampleRate;
+                byte[] audioBytes = Convert.FromBase64String(base64Audio);
+
+                using (MemoryStream memoryStream = new MemoryStream(audioBytes))
+                using (var audioFile = new Mp3FileReader(memoryStream))
+                {
+                    return audioFile.WaveFormat.SampleRate;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions here
+                // For example, if the base64 input is not a valid audio file
+                Console.WriteLine($"Error while getting sample rate: {ex.Message}");
+                return -1; // Indicate an error condition
             }
         }
     }

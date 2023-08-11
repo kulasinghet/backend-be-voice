@@ -61,7 +61,12 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-app.UseCors(allowedOrigins);
+if (app.Environment.IsDevelopment() != true)
+{
+    app.UseCors(allowedOrigins);
+}
+
+
 
 app.UseAuthorization();
 
