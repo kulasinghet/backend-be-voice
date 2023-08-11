@@ -107,22 +107,34 @@ namespace Be_My_Voice_Backend.Controllers
                 Console.Out.WriteLine(session.endDate.ToString());
                 Console.Out.WriteLine(DateTime.Now.ToString());
 
-                if (session.endDate.CompareTo(DateTime.Now) < 0)
-                {
-                    await _sessionsRepository.updateSessionStatus(
-                        new UpdateSessionStatusDTO
-                        {
-                            sessionID = session.sessionID,
-                            status = "completed"
-                        }
-                    );
+                //if (session.endDate.CompareTo(DateTime.Now) < 0)
+                //{
+                //    await _sessionsRepository.updateSessionStatus(
+                //        new UpdateSessionStatusDTO
+                //        {
+                //            sessionID = session.sessionID,
+                //            status = "completed"
+                //        }
+                //    );
 
-                    return new APIResponse(406, false, "Session has expired");
-                }
+                //    return new APIResponse(406, false, "Session has expired");
+                //}
 
                 TranslationModel translation = new TranslationModel();
                 translation.sessionID = session.sessionID;
                 translation.translatedText = predictedText;
+
+                if (createTranslationDTO.userType == "mute")
+                {
+                    translation.userType = "mute";
+
+                    // TODO: API call to infer ML model
+
+                } else
+                {
+                    translation.userType = "normal";
+                    translation.translatedText = createTranslationDTO.resultObjectFromSkeleton;
+                }
 
                 //if (translation.translatedText != null)
                 //{
