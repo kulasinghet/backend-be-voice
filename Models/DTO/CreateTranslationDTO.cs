@@ -1,4 +1,6 @@
-﻿namespace Be_My_Voice_Backend.Models.DTO
+﻿using System.Text.Json;
+
+namespace Be_My_Voice_Backend.Models.DTO
 {
     public class CreateTranslationDTO
     {

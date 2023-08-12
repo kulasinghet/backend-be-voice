@@ -124,17 +124,35 @@ namespace Be_My_Voice_Backend.Controllers
                 translation.sessionID = session.sessionID;
                 translation.translatedText = predictedText;
 
+                translation.translatedText = createTranslationDTO.resultObjectFromSkeleton;
+
                 if (createTranslationDTO.userType == "mute")
                 {
                     translation.userType = "mute";
-                    translation.translatedText = createTranslationDTO.resultObjectFromSkeleton.ToString();
+
+                    if (translation.translatedText == "evening")
+                    {
+                        translation.translatedText = "සවස";
+                    }
+                    else if (translation.translatedText == "break")
+                    {
+                        translation.translatedText = "කඩන්න";
+                    }
+                    else if (translation.translatedText == "stand")
+                    {
+                        translation.translatedText = "නැගිටින්න";
+                    }
+                    else if (translation.translatedText == "sit")
+                    {
+                        translation.translatedText = "වාඩි වෙන්න";
+                    } 
 
                     // TODO: API call to infer ML model
 
-                } else
+                }
+                else
                 {
                     translation.userType = "normal";
-                    translation.translatedText = createTranslationDTO.resultObjectFromSkeleton;
                 }
 
                 //if (translation.translatedText != null)
