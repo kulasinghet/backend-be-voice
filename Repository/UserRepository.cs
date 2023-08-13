@@ -89,17 +89,17 @@ namespace Be_My_Voice_Backend.Repository
             try
             {
                 UserModel user = new()
-{
-    UserID = Guid.NewGuid(),
-    Name = registerRequestDTO.Name,
-    Email = registerRequestDTO.Email,
-    PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(registerRequestDTO.Password),
-    Role = registerRequestDTO.Role,
-    Status = registerRequestDTO.Status,
-    ProfilePictureUrl = registerRequestDTO.ProfilePictureUrl,
-    PhoneNumber = registerRequestDTO.PhoneNumber,
-    DateOfBirth = registerRequestDTO.DateOfBirth
-};
+                {
+                    UserID = Guid.NewGuid(),
+                    Name = registerRequestDTO.Name,
+                    Email = registerRequestDTO.Email,
+                    PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(registerRequestDTO.Password),
+                    Role = registerRequestDTO.Role,
+                    Status = registerRequestDTO.Status,
+                    ProfilePictureUrl = registerRequestDTO.ProfilePictureUrl,
+                    PhoneNumber = registerRequestDTO.PhoneNumber,
+                    DateOfBirth = registerRequestDTO.DateOfBirth
+                };
 
                 await _dbContext.AddAsync(user);
                 await _dbContext.SaveChangesAsync();
@@ -139,10 +139,10 @@ namespace Be_My_Voice_Backend.Repository
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
                 LoginResponseDTO loginResponseDTO = new()
-{
-    Token = tokenHandler.WriteToken(token),
-    User = user
-};
+                {
+                    Token = tokenHandler.WriteToken(token),
+                    User = user
+                };
 
                 return loginResponseDTO;
 
