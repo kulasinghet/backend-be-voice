@@ -1,4 +1,4 @@
-﻿using Be_My_Voice_Backend.Models;
+using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
@@ -120,7 +120,7 @@ namespace Be_My_Voice_Backend.Controllers
                     return new APIResponse(406, false, "Session has expired");
                 }
 
-                TranslationModel translation = new TranslationModel();
+                TranslationModel translation = new();
                 translation.sessionID = session.sessionID;
                 translation.translatedText = predictedText;
 

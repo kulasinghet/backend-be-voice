@@ -1,4 +1,4 @@
-﻿using Be_My_Voice_Backend.Models;
+using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
 using Microsoft.AspNetCore.Mvc;
@@ -64,7 +64,7 @@ namespace Be_My_Voice_Backend.Controllers
         {
             try
             {
-                SessionModel session = new SessionModel();
+                SessionModel session = new();
                 session.userID = createSessionDTO.userID;
                 session.sessionID = Guid.NewGuid();
                 session.startDate = DateTime.Now;
