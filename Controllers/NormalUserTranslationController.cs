@@ -127,7 +127,8 @@ namespace Be_My_Voice_Backend.Controllers
 
                 return new APIResponse(201, true, "Translation created successfully");
 
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return new APIResponse(500, false, ex.Message);
             }
@@ -158,7 +159,7 @@ namespace Be_My_Voice_Backend.Controllers
             try
             {
                 if (translation.NormalUserTranslationID == Guid.Empty)
-                { 
+                {
                     return (new APIResponse(406, false, "Please provide a valid translation ID"));
                 }
 

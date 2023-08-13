@@ -145,7 +145,8 @@ namespace Be_My_Voice_Backend.Controllers
                     else if (translation.translatedText == "sit")
                     {
                         translation.translatedText = "වාඩි වෙන්න";
-                    } else
+                    }
+                    else
                     {
                         translation.translatedText = "සවස";
                     }

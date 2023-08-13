@@ -62,7 +62,7 @@ namespace Be_My_Voice_Backend.Repository
 
         public async Task<SessionModel> updateSessionStatus(UpdateSessionStatusDTO sessionStatus)
         {
-            SessionModel session = await _dbContext.sessions.FirstOrDefaultAsync(s => s.sessionID  == sessionStatus.sessionID);
+            SessionModel session = await _dbContext.sessions.FirstOrDefaultAsync(s => s.sessionID == sessionStatus.sessionID);
             UserModel userModel = await _dbContext.users.FirstOrDefaultAsync(u => u.UserID == session.userID);
 
             var tempSession = new SessionModel()
