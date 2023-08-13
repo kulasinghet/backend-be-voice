@@ -99,10 +99,10 @@ namespace Be_My_Voice_Backend.Controllers
                     return new APIResponse(406, false, "Invalid Session id");
                 }
 
-                //if (await _userRepository.getUserById(createTranslationDTO.userID) == null)
-                //{
-                //    return new APIResponse(406, false, "Invalid user id");
-                //}
+                if (await _userRepository.getUserById(createTranslationDTO.userID) == null)
+                {
+                    return new APIResponse(406, false, "Invalid user id");
+                }
 
                 Console.Out.WriteLine(session.endDate.ToString());
                 Console.Out.WriteLine(DateTime.Now.ToString());
