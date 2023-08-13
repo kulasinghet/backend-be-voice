@@ -88,7 +88,7 @@ namespace Be_My_Voice_Backend.Controllers
             catch (Exception ex)
             {
                 return (new APIResponse(500, false, ex.Message));
-            }   
+            }
 
         }
     }
