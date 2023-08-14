@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+using BCrypt.Net;
 using Be_My_Voice_Backend.Data;
 using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Models.DTO;
@@ -88,7 +88,7 @@ namespace Be_My_Voice_Backend.Repository
         {
             try
             {
-                UserModel user = new UserModel()
+                UserModel user = new()
                 {
                     UserID = Guid.NewGuid(),
                     Name = registerRequestDTO.Name,
@@ -148,7 +148,7 @@ namespace Be_My_Voice_Backend.Repository
 
                 var token = tokenHandler.CreateToken(tokenDescriptor);
 
-                LoginResponseDTO loginResponseDTO = new LoginResponseDTO()
+                LoginResponseDTO loginResponseDTO = new()
                 {
                     Token = tokenHandler.WriteToken(token),
                     User = user
