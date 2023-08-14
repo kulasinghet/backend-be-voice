@@ -70,7 +70,7 @@ namespace Be_My_Voice_Backend.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<ActionResult<APIResponse>> Login(LoginRequestDTO loginRequest)
+        public async Task<ActionResult<APIResponse>> Login([FromBody] LoginRequestDTO loginRequest)
         {
             try
             {
@@ -78,16 +78,19 @@ namespace Be_My_Voice_Backend.Controllers
                 {
                     return (new APIResponse(400, false, "Invalid Model State", ModelState));
                 }
+
                 LoginResponseDTO loginResponse = await _userRepository.Login(loginRequest);
+                
                 if (loginResponse.Token == null)
                 {
                     return (new APIResponse(400, false, "Invalid Credentials"));
                 }
+                
                 return (new APIResponse(200, true, "User logged in", loginResponse));
             }
             catch (Exception ex)
             {
-                return (new APIResponse(500, false, ex.Message));
+                return (new APIResponse(500, false, ex.ToString()));
             }   
 
         }
