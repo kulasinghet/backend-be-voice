@@ -116,6 +116,16 @@ namespace Be_My_Voice_Backend.Repository
         {
             var user = await _dbContext.users.FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email);
 
+            if (user == null)
+            {
+                return new LoginResponseDTO()
+                {
+                    RequestId = "User not found",
+                    User = null,
+                    Token = null
+                };
+            }
+
             var isPasswordMatch = BCrypt.Net.BCrypt.Verify(loginRequestDTO.Password, user.PasswordHash, true);
 
             if (isPasswordMatch)
@@ -149,7 +159,12 @@ namespace Be_My_Voice_Backend.Repository
             }
             else
             {
-                return null;
+                return new LoginResponseDTO()
+                {
+                    RequestId = "Password is incorrect",
+                    User = null,
+                    Token = null
+                };
             }
         }
     }
