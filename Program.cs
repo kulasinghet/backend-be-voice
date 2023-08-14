@@ -29,7 +29,7 @@ builder.Services.AddCors(
                 }
             );
     }
-    
+
 );
 
 Log.Logger = new LoggerConfiguration()
