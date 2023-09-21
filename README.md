@@ -1,8 +1,7 @@
 # Be My Voice - Backend Developer and Scrum Master
 
-![Be My Voice Logo](https://github.com/kulasinghet/backend-be-voice/images/logo.png)
 
-Welcome to the official repository of Be My Voice, a groundbreaking mobile application that serves as a bridge between Sinhala Sign Language and Sinhala Language. This project not only facilitates communication but also acts as an educational tool for learning Sign Language. Developed during the period of April 2023 to November 2023 at the University of Colombo School of Computing (UCSC), Be My Voice represents a significant step forward in accessible and inclusive communication.
+Welcome to the official repository of Be My Voice, a groundbreaking mobile application that serves as a bridge between Sinhala Sign Language and Sinhala Language. This project not only facilitates communication but also acts as an educational tool for learning Sign Language. Developed from April 2023 to November 2023 at the University of Colombo School of Computing (UCSC), Be My Voice represents a significant step forward in accessible and inclusive communication.
 
 ## Project Overview
 
