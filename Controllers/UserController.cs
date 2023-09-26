@@ -1,6 +1,7 @@
 ﻿using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Models.DTO;
 using Be_My_Voice_Backend.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Be_My_Voice_Backend.Controllers
@@ -16,7 +17,7 @@ namespace Be_My_Voice_Backend.Controllers
             this._userRepository = userRepository;
         }
 
-
+        [Authorize]
         [HttpGet("get-all-users")]
         public async Task<ActionResult<APIResponse>> GetAllUsers()
         {

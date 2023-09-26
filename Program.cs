@@ -1,15 +1,42 @@
 using Be_My_Voice_Backend.Data;
 using Be_My_Voice_Backend.Repository;
 using Be_My_Voice_Backend.Repository.IRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using Serilog.Core;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = "_allowedOrigins";
 
 // Add services to the container.
+
+var key = builder.Configuration.GetValue<string>("AppSettings:Secret");
+
+builder.Services.AddAuthentication(allowedOrigins =>
+{
+    allowedOrigins.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    allowedOrigins.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+}).AddJwtBearer(
+    allowedOrigins =>
+    {
+        allowedOrigins.RequireHttpsMetadata = false;
+        allowedOrigins.SaveToken = true;
+        allowedOrigins.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+
+        };
+    }
+    );
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -29,7 +56,7 @@ builder.Services.AddCors(
                 }
             );
     }
-    
+
 );
 
 Log.Logger = new LoggerConfiguration()
@@ -67,8 +94,9 @@ if (app.Environment.IsDevelopment() != true)
 }
 
 
-
+app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
