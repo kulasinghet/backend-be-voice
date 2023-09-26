@@ -20,7 +20,6 @@ namespace Be_My_Voice_Backend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-           
         }
     }
 }
