@@ -1,4 +1,4 @@
-﻿using Be_My_Voice_Backend.Models;
+using Be_My_Voice_Backend.Models;
 using Be_My_Voice_Backend.Services.IServices;
 using Newtonsoft.Json;
 using System.Text;
@@ -21,7 +21,7 @@ namespace Be_My_Voice_Backend.Services
             try
             {
                 var client = httpClient.CreateClient("MagicAPI");
-                HttpRequestMessage message = new HttpRequestMessage();
+                HttpRequestMessage message = new();
                 message.Headers.Add("Accept", "application/json");
                 message.RequestUri = new Uri(apiRequest.url);
 
