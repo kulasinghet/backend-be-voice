@@ -74,6 +74,7 @@ builder.Services.AddDbContext<ApplicationDBContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ISessionsRepository, SessionsRepository>();
 builder.Services.AddScoped<ITranslationsRepository, TranslationsRepository>();
+builder.Services.AddScoped<IQuizRepository, QuizRepository>();
 
 var app = builder.Build();
 

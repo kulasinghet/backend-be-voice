@@ -14,12 +14,13 @@ namespace Be_My_Voice_Backend.Controllers
         private readonly HttpClient _httpClient;
         private readonly IQuizRepository _quizRepository;
 
-        public QuizController(ITranslationsRepository translationRepository, IUserRepository userRepository, ISessionsRepository sessionsRepository)
-        {
+        public QuizController(ITranslationsRepository translationRepository, IUserRepository userRepository, ISessionsRepository sessionsRepository, IQuizRepository quizRepository)
+            {
             this._translationRepository = translationRepository;
             this._userRepository = userRepository;
             this._sessionsRepository = sessionsRepository;
             this._httpClient = new HttpClient();
+            this._quizRepository = quizRepository;
         }
 
         [HttpGet("/get-all-quizzes")]
